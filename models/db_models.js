@@ -1,9 +1,9 @@
 /** ORM db models */
 
 var mongoose = require('mongoose')
-var Schema = mongoose.Schema()
+var Schema = mongoose.Schema
 
-var usersSchema = Schema({
+var usersSchema = new Schema({
   _id: Schema.Types.ObjectId,
   username: String,
   email_address: String,
