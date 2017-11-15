@@ -1,0 +1,35 @@
+{
+  "name": "post-it",
+  "version": "0.0.1",
+  "description": "PostIt is a simple application that allows friends and colleagues create groups for notifications. ",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "mongoose": "^4.13.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.11.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-react": "^7.4.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "nodemon": "^1.12.1"
+  },
+  "author": "paulupendo",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paulupendo/Post-It.git"
+  },
+  "bugs": {
+    "url": "https://github.com/paulupendo/Post-It/issues"
+  },
+  "homepage": "https://github.com/paulupendo/Post-It#readme"
+}
