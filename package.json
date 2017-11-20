@@ -2,15 +2,16 @@
   "name": "post-it",
   "version": "0.0.1",
   "description": "PostIt is a simple application that allows friends and colleagues create groups for notifications. ",
-  "main": "server.js",
+  "main": "./server/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js"
+    "dev": "nodemon ./server/server.js"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "mongoose": "^4.13.2"
+    "mongoose": "^4.13.2",
+    "ramda": "^0.25.0"
   },
   "devDependencies": {
     "eslint": "^4.11.0",
