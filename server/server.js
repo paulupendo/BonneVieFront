@@ -28,6 +28,6 @@ app.listen(port, () => {
   console.log('Yuri is live on port: ' + port)
 })
 
-mongoose.createConnection(_config.URI, err => {
-  err && console.log('Failed to connect to MongoDB. Check internet connection')
-})
+mongoose.connect(_config.URI, {useMongoClient: true}, err => {
+  err && console.log(err.message)
+}) /** create connection to mongoDB via Mlab */
