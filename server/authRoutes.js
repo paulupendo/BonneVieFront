@@ -1,9 +1,9 @@
-var express = require('express')
 const R = require('ramda')
+var express = require('express')
 var router = express.Router()
 var authController = require('./authController')
 var _db = require('../models/db_models')
-var users = new _db.Users() /** new instance of the User model */
+var userModel = new _db.Users() /** new instance of the User model */
 
 router.post('/signup', (req, res) => {
   var newUser = new authController.UserInfo(req.body.name, req.body.email, req.body.password, req.body.confirmPass) /**
@@ -13,8 +13,9 @@ router.post('/signup', (req, res) => {
    * validate user input and check for edge-cases
    */
   if (response === 'success') {
-    authController.save(users, newUser.name, newUser.email, newUser.password, res) /**
-     * save users to mongoDB via MLab if all edge-cases pass
+    authController.save(_db.Users, userModel, newUser, res) /**
+     * check if name already exists in DB
+     * save new data to db if it does not exist
      */
   } else {
     res.json({ msg: response }) /**
@@ -24,13 +25,15 @@ router.post('/signup', (req, res) => {
 })
 
 router.post('/signin', (req, res) => {
-  var userObj = R.omit(['email', 'confirmPass'], new authController.UserInfo())
+  var userObj = R.omit(['email', 'confirmPass'], new authController.UserInfo()) /**
+   * create new user object instance omitting some properties
+   */
   userObj.name = req.body.name
   userObj.password = req.body.password
 
-  var response = authController.userAuth(userObj.name, userObj.password)
-
-  res.json({ msg: response })
+  authController.userAuth(_db.Users, userObj, res) /**
+   * handels user authentication
+   */
 })
 
 module.exports = router
