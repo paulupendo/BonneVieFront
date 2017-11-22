@@ -1,4 +1,6 @@
 const R = require('ramda')
+var jwt = require('jsonwebtoken')
+var _secret = process.env.SECRET
 
 const isEmptyString = R.pipe(/** function composition with Ramda */
   R.defaultTo(''),
@@ -67,8 +69,6 @@ module.exports = {
     const isError = (err) => {
       if (err) {
         res.json({msg: err.message})
-      } else {
-        res.json({msg: R.trim(name) + '! Hurrah! You have successfuly been registered.'}) // Data saved to DB
       }
     }
 
@@ -76,19 +76,39 @@ module.exports = {
   },
   save: function (usersModel, UserMInstance, userObj, res) {
     usersModel.find((err, users) => { /** move this to own function during refactor */
+      var email = R.trim(userObj.email)
       if (err) {
         console.log(err)
       } else {
         var userExists = users.some((user) => {
-          return user.username === R.trim(userObj.name)
+          return user.email === email
         }) /** return true if username found */
         if (userExists) {
-          res.json({ msg: 'Ooops! This username is already taken' })
+          res.json({ msg: 'Ooops! This email address is in use!' })
         } else {
           this.miniSave(UserMInstance, userObj.name, userObj.email, userObj.password, res) /**
           * save users to mongoDB via MLab if all edge-cases pass
           */
+          var token = this.generateToken(email)
+          res.json({
+            msg: 'Welcome ' + userObj.name,
+            token: token
+          })
         }
+      }
+    })
+  },
+  generateToken: function (email) {
+    var _payload = {data: email}
+    var token = jwt.sign(_payload, _secret)
+    return token
+  },
+  verifyToken: function (token, res) {
+    jwt.verify(token, _secret, (err, decodedToken) => {
+      if (err) {
+        res.json({ msg: err })
+      } else {
+        res.json({ msg: 'success' })
       }
     })
   }
