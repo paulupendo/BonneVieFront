@@ -9,6 +9,7 @@ var bodyparser = require('body-parser')
 var router = express.Router() /** get an instance of express router */
 var port = process.env.port || 8080
 var mongoose = require('mongoose')
+require('dotenv').config()
 
 app.use(bodyparser.urlencoded({extended: true})) /**
  * Returns middleware that only parses urlencoded bodies.

@@ -1,6 +1,7 @@
 var express = require('express')
 var router = express.Router()
 var groupController = require('./groupController')
+var messageController = require('./messageController')
 var userController = require('./userController')
 
 router.post('/group', (req, res) => {
@@ -18,6 +19,12 @@ router.post('/group', (req, res) => {
   } else {
     res.json({ msg: response })
   }
+})
+
+router.post('/group/<groupId>/message', (req, res) => {
+  var message = req.body.content
+  var messageObj = new messageController.NewMessage(message)
+  userController.createMesssage(messageObj.content, res)
 })
 
 module.exports = router

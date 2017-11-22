@@ -1,6 +1,7 @@
 const R = require('ramda')
 var _db = require('../models/db_models')
 var groups = new _db.Groups()
+var messages = new _db.Messages()
 
 const isEmptyString = R.pipe(
   R.defaultTo(''),
@@ -30,10 +31,18 @@ module.exports = {
       }
     })
   },
-  sendInvites: function () {
+  sendInvites: function (name, groupName) {
     // Add users to group
   },
-  createMesssage: function () {
+  createMesssage: function (_content, res) {
+    messages.content = _content
+    messages.save((err) => {
+      if (err) {
+        res.json({ msg: err.message })
+      } else {
+        res.json({ msg: 'Message posted successfuly' })
+      }
+    })
     // create new message
   },
   deleteGroup: function () {
