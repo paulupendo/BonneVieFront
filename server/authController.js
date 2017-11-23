@@ -65,8 +65,22 @@ module.exports = {
               */
             }
           })
+
           if (userExists) {
-            res.json({ msg: 'Successful logged in!' })
+            var registeredUser = users.find((user) => {
+              return user.email === R.trim(userObj.email)
+            }) /** get user object from DB */
+
+            var token = this.generateToken(registeredUser._id) /**
+             * generate authentication token onSignin
+             */
+
+            res.json({
+              msg: 'Successful logged in!',
+              token: token
+            }) /**
+             * return user token and success authentication message
+             */
           } else {
             userObj.email
               ? res.json({ msg: 'Ooops! email or password do not match' })
@@ -84,6 +98,8 @@ module.exports = {
     const isError = (err) => {
       if (err) {
         res.json({msg: err.message})
+      } else {
+        res.json({ msg: 'Welcome ' + R.tirim(name) + ' you have been successfuly registered' })
       }
     }
 
@@ -104,18 +120,15 @@ module.exports = {
           this.miniSave(UserMInstance, userObj.name, userObj.email, userObj.password, res) /**
           * save users to mongoDB via MLab if all edge-cases pass
           */
-          var token = this.generateToken(email)
-          res.json({
-            msg: 'Welcome ' + userObj.name,
-            token: token
-          })
         }
       }
     })
   },
-  generateToken: function (email) {
-    var _payload = {data: email}
-    var token = jwt.sign(_payload, _secret, { expiresIn: '3h' })
+  generateToken: function (_id) {
+    var _payload = {data: _id} /** embed user_id into token payload */
+    var token = jwt.sign(_payload, _secret, { expiresIn: '3h' }) /**
+     * jwt token with 3hour expiry time
+     */
     return token
   },
   verifyToken: function (token, res) {
