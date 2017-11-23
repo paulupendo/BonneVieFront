@@ -37,7 +37,12 @@ module.exports = {
     return message
   },
   userAuth: function (usersModel, userObj, res) { /** signin handler */
-    var emptyField = R.any(isEmptyString, [userObj.name, userObj.password])
+    var emptyField
+    if (userObj.email) {
+      emptyField = R.any(isEmptyString, [userObj.email, userObj.password])
+    } else if (userObj.name) {
+      emptyField = R.any(isEmptyString, [userObj.name, userObj.password])
+    }
 
     if (emptyField) {
       res.json({ msg: 'Ooops! All input fields are required' })
@@ -50,12 +55,22 @@ module.exports = {
           res.json({ msg: 'Ooops! An error occured' })
         } else {
           var userExists = users.some((user) => {
-            return user.username === R.trim(userObj.name) && user.password === R.trim(userObj.password)
-          }) /** return true if username and password found */
+            if (userObj.email) {
+              return user.email === R.trim(userObj.email) && user.password === R.trim(userObj.password) /**
+              * return true if user email and password match
+              */
+            } else if (userObj.name) {
+              return user.username === R.trim(userObj.name) && user.password === R.trim(userObj.password) /**
+              * return true if username and password match
+              */
+            }
+          })
           if (userExists) {
             res.json({ msg: 'Successful logged in!' })
           } else {
-            res.json({ msg: 'Ooops! username or password do not match' })
+            userObj.email
+              ? res.json({ msg: 'Ooops! email or password do not match' })
+              : res.json({ msg: 'Ooops! username or password do not match' })
           }
         }
       })
@@ -100,7 +115,7 @@ module.exports = {
   },
   generateToken: function (email) {
     var _payload = {data: email}
-    var token = jwt.sign(_payload, _secret)
+    var token = jwt.sign(_payload, _secret, { expiresIn: '3h' })
     return token
   },
   verifyToken: function (token, res) {

@@ -25,11 +25,12 @@ router.post('/signup', (req, res) => {
 })
 
 router.post('/signin', (req, res) => {
-  var userObj = R.omit(['email', 'confirmPass'], new authController.UserInfo()) /**
+  var userObj = R.omit(['confirmPass'], new authController.UserInfo()) /**
    * create new user object instance omitting some properties
    */
-  userObj.name = req.body.name
+  userObj.email = req.body.email
   userObj.password = req.body.password
+  userObj.name = req.body.name
 
   authController.userAuth(_db.Users, userObj, res) /**
    * handels user authentication
