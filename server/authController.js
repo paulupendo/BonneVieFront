@@ -99,7 +99,7 @@ module.exports = {
       if (err) {
         res.json({msg: err.message})
       } else {
-        res.json({ msg: 'Welcome ' + R.tirim(name) + ' you have been successfuly registered' })
+        res.json({ msg: 'Welcome ' + R.trim(name) + ' you have been successfuly registered' })
       }
     }
 
@@ -125,19 +125,20 @@ module.exports = {
     })
   },
   generateToken: function (_id) {
-    var _payload = {data: _id} /** embed user_id into token payload */
+    var _payload = {id: _id} /** embed user_id into token payload */
     var token = jwt.sign(_payload, _secret, { expiresIn: '3h' }) /**
      * jwt token with 3hour expiry time
      */
     return token
   },
-  verifyToken: function (token, res) {
-    jwt.verify(token, _secret, (err, decodedToken) => {
+  verifyToken: function (token) {
+    var tokenDecoded = jwt.verify(token, _secret, (err, decodedToken) => {
       if (err) {
-        res.json({ msg: err })
+        return err
       } else {
-        res.json({ msg: 'success' })
+        return decodedToken
       }
     })
+    return tokenDecoded
   }
 }
