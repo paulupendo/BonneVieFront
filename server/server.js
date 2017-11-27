@@ -9,6 +9,7 @@ var bodyparser = require('body-parser')
 var router = express.Router() /** get an instance of express router */
 var port = process.env.port || 8080
 var mongoose = require('mongoose')
+require('dotenv').config()
 
 app.use(bodyparser.urlencoded({extended: true})) /**
  * Returns middleware that only parses urlencoded bodies.
@@ -28,6 +29,6 @@ app.listen(port, () => {
   console.log('Yuri is live on port: ' + port)
 })
 
-mongoose.createConnection(_config.URI, err => {
-  err && console.log('Failed to connect to MongoDB. Check internet connection')
-})
+mongoose.connect(_config.URI, {useMongoClient: true}, err => {
+  err && console.log(err.message)
+}) /** create connection to mongoDB via Mlab */

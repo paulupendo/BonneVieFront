@@ -4,7 +4,6 @@ var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 
 var usersSchema = new Schema({
-  _id: Schema.Types.ObjectId,
   username: String,
   email: String,
   password: String,
@@ -15,15 +14,13 @@ var usersSchema = new Schema({
 var groupSchema = new Schema({
   _creator: { type: Schema.Types.ObjectId, ref: 'Users' },
   messages: [{ type: Schema.Types.ObjectId, ref: 'Messages' }],
-  groupid: Schema.Types.ObjectId,
   name: String,
-  members: String
+  members: [{ email: String }]
 })
 
 var messageSchema = new Schema({
   _creator: { type: Schema.Types.ObjectId, ref: 'Users' },
   _group: { type: Schema.Types.ObjectId, ref: 'Groups' },
-  message_id: Schema.Types.ObjectId,
   message: String
 })
 
