@@ -15,7 +15,7 @@ var groupSchema = new Schema({
   _creator: { type: Schema.Types.ObjectId, ref: 'Users' },
   messages: [{ type: Schema.Types.ObjectId, ref: 'Messages' }],
   name: String,
-  members: String
+  members: [{ email: String }]
 })
 
 var messageSchema = new Schema({
