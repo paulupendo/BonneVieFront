@@ -10,6 +10,62 @@ const isEmptyString = R.pipe(
   R.isEmpty
 )
 
+const saveGroup = (token, res) => {
+  _db.Users.findById(token.id, (err, user) => { /**
+    * locate user in DB with particular id
+    */
+    if (err) {
+      res.json({ msg: err })
+    } else if (String(user._id) === token.id) {
+      groups._creator = token.id /**
+       * add user_id as group creator from decoded token
+       */
+      groups.save((err) => {
+        if (err) {
+          res.json({ msg: err.message })
+        } else {
+          res.json({ msg: 'Group successfuly created' })
+        }
+      }) /** add group to DB */
+    } else {
+      res.json({ msg: 'Ooops! Unauthorised access!' })
+    }
+  })
+}
+
+const saveMember = (group, existingUser, res) => {
+  group.members.push({ email: existingUser.email }) /**
+  * add new member to existing group
+  * email serves as the identifier
+  */
+  group.save((err) => {
+    if (err) {
+      res.json({ msg: 'Ooops! An error occured' })
+    }
+    res.json({ msg: existingUser.username + ' was successfully added' })
+  }) /** update group info */
+}
+
+const verifyUser = (address, group, res) => {
+  _db.Users.find((err, users) => {
+    if (err) {
+      res.json({ msg: 'Ooops! An error occured' })
+    } else {
+      var userFound = users.find((user) => {
+        return user.email === address
+      }) /**
+       * check if user exists in the DB
+       * returns user object if user exists
+       */
+      if (userFound) {
+        res.json({ msg: 'Ooops! This particular user already exists' })
+      } else {
+        saveMember(group, userFound)
+      }
+    }
+  })
+}
+
 module.exports = {
   validator: function (name, token) {
     var response
@@ -29,25 +85,8 @@ module.exports = {
     var decodedToken = authController.verifyToken(token) /** decode token and get payload */
     if (decodedToken.hasOwnProperty('id') === false) {
       res.json({ msg: 'Authorisation error' })
-    } else if (decodedToken.hasOwnProperty('id')) {
-      _db.Users.findById(decodedToken.id, (err, user) => { /**
-       * locate user in DB with particular id
-       */
-        if (err) {
-          res.json({ msg: err })
-        } else if (String(user._id) === decodedToken.id) {
-          groups._creator = decodedToken.id
-          groups.save((err) => {
-            if (err) {
-              res.json({ msg: err.message })
-            } else {
-              res.json({ msg: 'Group successfuly created' })
-            }
-          })
-        } else {
-          res.json({ msg: 'Ooops! Unauthorised access!' })
-        }
-      })
+    } else {
+      saveGroup(decodedToken, res)
     }
   },
   addUser: function (email, groupid, res) {
@@ -77,34 +116,7 @@ module.exports = {
       if (err) {
         res.json({ msg: 'An error occured' })
       } else if (group) {
-        _db.Users.find((err, users) => {
-          if (err) {
-            res.json({ msg: 'Ooops! An error occured' })
-          } else {
-            var userFound = users.find((user) => {
-              return user.email === email
-            })
-            if (userFound) {
-              var userExists = group.members.some((user) => {
-                return user.email === userFound.email
-              })
-              if (userExists) {
-                res.json({ msg: 'Ooops! This particular user already exists' })
-              } else {
-                group.members.push({ email: userFound.email }) /**
-                 * add new member to group
-                 * email serves as the identifier
-                 */
-                group.save((err) => {
-                  if (err) {
-                    res.json({ msg: 'Ooops! An error occured' })
-                  }
-                  res.json({ msg: userFound.username + ' was successfully added' })
-                }) /** update group info */
-              }
-            }
-          }
-        })
+        verifyUser(email, group, res)
       } else {
         res.json({ msg: 'Ooops! group does not exist' })
       }
