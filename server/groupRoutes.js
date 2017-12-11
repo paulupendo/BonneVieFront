@@ -25,14 +25,22 @@ router.post('/group', (req, res) => {
 router.put('/group/:groupId/user', (req, res) => {
   var email = req.body.email
   var groupId = req.params.groupId
-  userController.addUser(email, groupId, res)
+  let token = req.body.token
+  userController.addUser(email, groupId, token, res)
 })
 
 router.post('/group/:groupId/message', (req, res) => {
-  var message = req.body.content
-  // var group_id = req.params.groupId
+  let message = req.body.content
+  let _groupId = req.params.groupId
+  let token = req.body.token
+
   var messageObj = new messageController.NewMessage(message)
-  userController.createMesssage(messageObj.content, res)
+  userController.createMesssage(messageObj.content, token, _groupId, res)
+})
+
+router.get('/group/:groupId/messages', (req, res) => {
+  let groupId = req.params.groupId
+  userController.getMessages(groupId, res)
 })
 
 module.exports = router

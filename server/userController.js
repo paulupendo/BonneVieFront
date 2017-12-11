@@ -34,16 +34,26 @@ const saveGroup = (token, res) => {
 }
 
 const saveMember = (group, existingUser, res) => {
-  group.members.push({ email: existingUser.email }) /**
-  * add new member to existing group
-  * email serves as the identifier
-  */
-  group.save((err) => {
-    if (err) {
-      res.json({ msg: 'Ooops! An error occured' })
-    }
-    res.json({ msg: existingUser.username + ' was successfully added' })
-  }) /** update group info */
+  let userExists = group.members.some((user) => {
+    return user.email === existingUser.email
+  }) /**
+   * check if user already exists in group
+   */
+
+  if (!userExists) {
+    group.members.push({ email: existingUser.email }) /**
+    * add new member to existing group
+    * email serves as the identifier
+    */
+    group.save((err) => {
+      if (err) {
+        res.json({ msg: 'Ooops! An error occured' })
+      }
+      res.json({ msg: existingUser.username + ' was successfully added' })
+    }) /** update group info */
+  } else {
+    res.json({ msg: 'Ooops! This member already exists' })
+  }
 }
 
 const verifyUser = (address, group, res) => {
@@ -58,9 +68,9 @@ const verifyUser = (address, group, res) => {
        * returns user object if user exists
        */
       if (userFound) {
-        res.json({ msg: 'Ooops! This particular user already exists' })
+        saveMember(group, userFound, res)
       } else {
-        saveMember(group, userFound)
+        res.json({msg: 'Ooops! This user does not exist'})
       }
     }
   })
@@ -82,17 +92,21 @@ module.exports = {
   },
   createGroup: function (name, token, res) {
     groups.name = R.trim(name)
-    var decodedToken = authController.verifyToken(token) /** decode token and get payload */
+    let decodedToken = authController.verifyToken(token) /** decode token and get payload */
     if (decodedToken.hasOwnProperty('id') === false) {
       res.json({ msg: 'Authorisation error' })
     } else {
       saveGroup(decodedToken, res)
     }
   },
-  addUser: function (email, groupid, res) {
+  addUser: function (email, groupid, token, res) {
     var emptyData = R.any(isEmptyString, [email])
+    let decodedToken = authController.verifyToken(token) /** decode token and get payload */
+
     if (emptyData) {
-      res.json({ msg: 'Ooops! email cannot be empty' })
+      res.json({ msg: 'Ooops! Email cannot be empty' })
+    } else if (decodedToken.hasOwnProperty('id') === false) {
+      res.json({ msg: 'Authorisation error' })
     } else {
       this.memberValidation(groupid, email, res) /**
        * validates that group and user exists
@@ -100,16 +114,31 @@ module.exports = {
        */
     }
   },
-  createMesssage: function (_content, res) {
-    messages.content = _content
-    messages.save((err) => {
-      if (err) {
-        res.json({ msg: err.message })
-      } else {
-        res.json({ msg: 'Message posted successfuly' })
-      }
-    })
-    // create new message
+  createMesssage: function (_content, token, groupid, res) {
+    let decodedToken = authController.verifyToken(token) /** decode token and get payload */
+    if (decodedToken.hasOwnProperty('id') === false) {
+      res.json({ msg: 'Ooops! Authorisation error' })
+    } else {
+      _db.Users.findById(decodedToken.id, (err, user) => {
+        if (err) {
+          res.json({ msg: 'An error occured' })
+        } else if (String(user._id) === decodedToken.id) {
+          messages._content = _content
+          messages._creator = decodedToken.id
+          messages._groupid = groupid
+
+          messages.save((err) => {
+            if (err) {
+              res.json({ msg: err.message })
+            } else {
+              res.json({ msg: 'Message posted successfuly' })
+            }
+          })
+        } else {
+          res.json({ msg: 'Authorisation error' })
+        }
+      })
+    }
   },
   memberValidation: function (groupid, email, res) {
     _db.Groups.findById(groupid, (err, group) => {
@@ -119,6 +148,20 @@ module.exports = {
         verifyUser(email, group, res)
       } else {
         res.json({ msg: 'Ooops! group does not exist' })
+      }
+    })
+  },
+  getMessages: function (groupid, res) {
+    _db.Messages.find((err, messages) => {
+      if (err) {
+        res.json({ msg: 'Ooops! An error occured' })
+      } else {
+        let groupMesages = messages.filter((message) => {
+          return String(message._groupid) === groupid
+        })
+        groupMesages.length > 0
+          ? res.json({ msg: groupMesages })
+          : res.json({ msg: 'Ooops! No messages here yet' })
       }
     })
   },
