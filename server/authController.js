@@ -38,12 +38,7 @@ module.exports = {
     return message
   },
   userAuth: function (usersModel, userObj, res) { /** signin handler */
-    let emptyField
-    if (userObj.email) {
-      emptyField = R.any(isEmptyString, [userObj.email, userObj.password])
-    } else if (userObj.name) {
-      emptyField = R.any(isEmptyString, [userObj.name, userObj.password])
-    }
+    let emptyField = R.any(isEmptyString, [userObj.email, userObj.password])
 
     if (emptyField) {
       res.json({ msg: 'Ooops! All input fields are required' })
@@ -56,15 +51,9 @@ module.exports = {
           res.json({ msg: 'Ooops! An error occured' })
         } else {
           var userExists = users.some((user) => {
-            if (userObj.email) {
-              return user.email === R.trim(userObj.email) && user.password === R.trim(userObj.password) /**
+            return user.email === R.trim(userObj.email) && user.password === R.trim(userObj.password) /**
               * return true if user email and password match
               */
-            } else if (userObj.name) {
-              return user.username === R.trim(userObj.name) && user.password === R.trim(userObj.password) /**
-              * return true if username and password match
-              */
-            }
           })
 
           if (userExists) {
