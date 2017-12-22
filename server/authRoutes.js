@@ -1,8 +1,9 @@
-const R = require('ramda')
-var express = require('express')
+import R from 'ramda'
+import express from 'express'
+import authController from './authController'
+import _db from '../models/db_models'
+
 var router = express.Router()
-var authController = require('./authController')
-var _db = require('../models/db_models')
 var userModel = new _db.Users() /** new instance of the User model */
 
 router.post('/signup', (req, res) => {

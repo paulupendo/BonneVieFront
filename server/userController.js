@@ -1,6 +1,7 @@
-const R = require('ramda')
-var _db = require('../models/db_models')
-var authController = require('./authController')
+import R from 'ramda'
+import _db from '../models/db_models'
+import authController from './authController'
+
 var groups = new _db.Groups()
 var messages = new _db.Messages()
 
@@ -61,7 +62,7 @@ const verifyUser = (address, group, res) => {
     if (err) {
       res.json({ msg: 'Ooops! An error occured' })
     } else {
-      var userFound = users.find((user) => {
+      let userFound = users.find((user) => {
         return user.email === address
       }) /**
        * check if user exists in the DB
@@ -78,8 +79,8 @@ const verifyUser = (address, group, res) => {
 
 module.exports = {
   validator: function (name, token) {
-    var response
-    var emptyInput = R.any(isEmptyString, [name])
+    let response
+    let emptyInput = R.any(isEmptyString, [name])
 
     if (emptyInput) {
       response = 'Ooops! Group name cannot be empty'
@@ -100,7 +101,7 @@ module.exports = {
     }
   },
   addUser: function (email, groupid, token, res) {
-    var emptyData = R.any(isEmptyString, [email])
+    let emptyData = R.any(isEmptyString, [email])
     let decodedToken = authController.verifyToken(token) /** decode token and get payload */
 
     if (emptyData) {
@@ -108,7 +109,7 @@ module.exports = {
     } else if (decodedToken.hasOwnProperty('id') === false) {
       res.json({ msg: 'Authorisation error' })
     } else {
-      this.memberValidation(groupid, email, res) /**
+      this.groupValidation(groupid, email, res) /**
        * validates that group and user exists
        * adds user to group's member list
        */
@@ -140,7 +141,7 @@ module.exports = {
       })
     }
   },
-  memberValidation: function (groupid, email, res) {
+  groupValidation: function (groupid, email, res) {
     _db.Groups.findById(groupid, (err, group) => {
       if (err) {
         res.json({ msg: 'An error occured' })

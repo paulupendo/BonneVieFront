@@ -1,8 +1,9 @@
-var express = require('express')
+import express from 'express'
+import groupController from './groupController'
+import messageController from './messageController'
+import userController from './userController'
+
 var router = express.Router()
-var groupController = require('./groupController')
-var messageController = require('./messageController')
-var userController = require('./userController')
 
 router.post('/group', (req, res) => {
   var name = req.body.groupname
