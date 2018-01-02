@@ -2,7 +2,6 @@
  * BASE SETUP
  * ============================================
  */
-import _config from '../config'
 import express from 'express'
 import bodyparser from 'body-parser'
 import mongoose from 'mongoose'
@@ -33,6 +32,7 @@ app.listen(port, () => {
   console.log('Yuri is live on port: ' + port)
 })
 
-mongoose.connect(_config.URI, {useMongoClient: true}, err => {
+const URI = process.env.DB_URI
+mongoose.connect(URI, {useMongoClient: true}, err => {
   err && console.log(err.message)
 }) /** create connection to mongoDB via Mlab */
