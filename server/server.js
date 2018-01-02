@@ -2,7 +2,7 @@
  * BASE SETUP
  * ============================================
  */
-var _config = require('../config')
+// var _config = require('../config')
 var express = require('express')
 var app = express() /** defines the app using express */
 var bodyparser = require('body-parser')
@@ -29,6 +29,7 @@ app.listen(port, () => {
   console.log('Yuri is live on port: ' + port)
 })
 
-mongoose.connect(_config.URI, {useMongoClient: true}, err => {
+const URI = process.env.DB_URI
+mongoose.connect(URI, {useMongoClient: true}, err => {
   err && console.log(err.message)
 }) /** create connection to mongoDB via Mlab */
