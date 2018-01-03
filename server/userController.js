@@ -2,26 +2,23 @@ import R from 'ramda'
 import _db from '../models/db_models'
 import authController from './authController'
 
-var groups = new _db.Groups()
-var messages = new _db.Messages()
+const groups = new _db.Groups()
+const messages = new _db.Messages()
 
-const isEmptyString = R.pipe(
-  R.defaultTo(''),
-  R.trim,
-  R.isEmpty
-)
+const isEmptyString = R.pipe(R.defaultTo(''), R.trim, R.isEmpty)
 
 const saveGroup = (token, res) => {
-  _db.Users.findById(token.id, (err, user) => { /**
-    * locate user in DB with particular id
-    */
+  _db.Users.findById(token.id, (err, user) => {
+    /**
+     * locate user in DB with particular id
+     */
     if (err) {
       res.json({ msg: err })
     } else if (String(user._id) === token.id) {
       groups._creator = token.id /**
        * add user_id as group creator from decoded token
        */
-      groups.save((err) => {
+      groups.save(err => {
         if (err) {
           res.json({ msg: err.message })
         } else {
@@ -35,7 +32,7 @@ const saveGroup = (token, res) => {
 }
 
 const saveMember = (group, existingUser, res) => {
-  let userExists = group.members.some((user) => {
+  let userExists = group.members.some(user => {
     return user.email === existingUser.email
   }) /**
    * check if user already exists in group
@@ -43,10 +40,10 @@ const saveMember = (group, existingUser, res) => {
 
   if (!userExists) {
     group.members.push({ email: existingUser.email }) /**
-    * add new member to existing group
-    * email serves as the identifier
-    */
-    group.save((err) => {
+     * add new member to existing group
+     * email serves as the identifier
+     */
+    group.save(err => {
       if (err) {
         res.json({ msg: 'Ooops! An error occured' })
       }
@@ -62,7 +59,7 @@ const verifyUser = (address, group, res) => {
     if (err) {
       res.json({ msg: 'Ooops! An error occured' })
     } else {
-      let userFound = users.find((user) => {
+      let userFound = users.find(user => {
         return user.email === address
       }) /**
        * check if user exists in the DB
@@ -71,7 +68,7 @@ const verifyUser = (address, group, res) => {
       if (userFound) {
         saveMember(group, userFound, res)
       } else {
-        res.json({msg: 'Ooops! This user does not exist'})
+        res.json({ msg: 'Ooops! This user does not exist' })
       }
     }
   })
@@ -93,7 +90,9 @@ module.exports = {
   },
   createGroup: function (name, token, res) {
     groups.name = R.trim(name)
-    let decodedToken = authController.verifyToken(token) /** decode token and get payload */
+    let decodedToken = authController.verifyToken(
+      token
+    ) /** decode token and get payload */
     if (decodedToken.hasOwnProperty('id') === false) {
       res.json({ msg: 'Authorisation error' })
     } else {
@@ -102,7 +101,9 @@ module.exports = {
   },
   addUser: function (email, groupid, token, res) {
     let emptyData = R.any(isEmptyString, [email])
-    let decodedToken = authController.verifyToken(token) /** decode token and get payload */
+    let decodedToken = authController.verifyToken(
+      token
+    ) /** decode token and get payload */
 
     if (emptyData) {
       res.json({ msg: 'Ooops! Email cannot be empty' })
@@ -116,7 +117,9 @@ module.exports = {
     }
   },
   createMesssage: function (_content, token, groupid, res) {
-    let decodedToken = authController.verifyToken(token) /** decode token and get payload */
+    let decodedToken = authController.verifyToken(
+      token
+    ) /** decode token and get payload */
     if (decodedToken.hasOwnProperty('id') === false) {
       res.json({ msg: 'Ooops! Authorisation error' })
     } else {
@@ -128,7 +131,7 @@ module.exports = {
           messages._creator = decodedToken.id
           messages._groupid = groupid
 
-          messages.save((err) => {
+          messages.save(err => {
             if (err) {
               res.json({ msg: err.message })
             } else {
@@ -157,7 +160,7 @@ module.exports = {
       if (err) {
         res.json({ msg: 'Ooops! An error occured' })
       } else {
-        let groupMesages = messages.filter((message) => {
+        let groupMesages = messages.filter(message => {
           return String(message._groupid) === groupid
         })
         groupMesages.length > 0

@@ -7,12 +7,14 @@ import bodyparser from 'body-parser'
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 
-var app = express() /** defines the app using express */
-var router = express.Router() /** get an instance of express router */
-var port = process.env.port || 8080
 dotenv.config()
 
-app.use(bodyparser.urlencoded({extended: true})) /**
+const app = express() /** defines the app using express */
+const router = express.Router() /** get an instance of express router */
+const port = process.env.port || 8080
+const URI = process.env.DB_URI
+
+app.use(bodyparser.urlencoded({ extended: true })) /**
  * Returns middleware that only parses urlencoded bodies.
  * With the extended option set to true this will accept key value pairs of any type
  * If extended option is setto false it will accept key value pairs only as string or array
@@ -20,7 +22,7 @@ app.use(bodyparser.urlencoded({extended: true})) /**
 app.use(bodyparser.json()) /** Return middleware that only parses Json */
 
 router.get('/', (req, res) => {
-  return res.json({message: 'Wup wup you just awoke yuri'})
+  return res.json({ message: 'Wup wup you just awoke yuri' })
 })
 router.use('/auth', require('./authRoutes'))
 router.use(require('./groupRoutes')) /**
@@ -32,7 +34,6 @@ app.listen(port, () => {
   console.log('Yuri is live on port: ' + port)
 })
 
-const URI = process.env.DB_URI
-mongoose.connect(URI, {useMongoClient: true}, err => {
+mongoose.connect(URI, { useMongoClient: true }, err => {
   err && console.log(err.message)
 }) /** create connection to mongoDB via Mlab */

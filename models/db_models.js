@@ -1,21 +1,22 @@
 /** Mongoose ORM db models */
 
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
+import mongoose from 'mongoose'
 
-var usersSchema = new Schema({
+const Schema = mongoose.Schema
+
+let usersSchema = new Schema({
   username: String,
   email: String,
   password: String
 })
 
-var groupSchema = new Schema({
+let groupSchema = new Schema({
   _creator: { type: Schema.Types.ObjectId, ref: 'Users' },
   name: String,
   members: [{ email: String }]
 })
 
-var messageSchema = new Schema({
+let messageSchema = new Schema({
   _creator: { type: Schema.Types.ObjectId, ref: 'Users' },
   _groupid: { type: Schema.Types.ObjectId, ref: 'Groups' },
   _content: String
