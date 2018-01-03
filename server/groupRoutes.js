@@ -1,16 +1,17 @@
-var express = require('express')
-var router = express.Router()
-var groupController = require('./groupController')
-var messageController = require('./messageController')
-var userController = require('./userController')
+import express from 'express'
+import groupController from './groupController'
+import messageController from './messageController'
+import userController from './userController'
+
+const router = express.Router()
 
 router.post('/group', (req, res) => {
-  var name = req.body.groupname
-  var token = req.body.token
-  var group = new groupController.NewGroup(name) /**
+  let name = req.body.groupname
+  let token = req.body.token
+  let group = new groupController.NewGroup(name) /**
    * new group object from constructor
    */
-  var response = userController.validator(group.name, token) /**
+  let response = userController.validator(group.name, token) /**
    * handles input validation
    */
   if (response === 'group input validation success') {
@@ -23,8 +24,8 @@ router.post('/group', (req, res) => {
 })
 
 router.put('/group/:groupId/user', (req, res) => {
-  var email = req.body.email
-  var groupId = req.params.groupId
+  let email = req.body.email
+  let groupId = req.params.groupId
   let token = req.body.token
   userController.addUser(email, groupId, token, res)
 })
@@ -34,7 +35,7 @@ router.post('/group/:groupId/message', (req, res) => {
   let _groupId = req.params.groupId
   let token = req.body.token
 
-  var messageObj = new messageController.NewMessage(message)
+  let messageObj = new messageController.NewMessage(message)
   userController.createMesssage(messageObj.content, token, _groupId, res)
 })
 

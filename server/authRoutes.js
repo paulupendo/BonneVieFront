@@ -1,15 +1,16 @@
-const R = require('ramda')
-var express = require('express')
-var router = express.Router()
-var authController = require('./authController')
-var _db = require('../models/db_models')
-var userModel = new _db.Users() /** new instance of the User model */
+import R from 'ramda'
+import express from 'express'
+import authController from './authController'
+import _db from '../models/db_models'
+
+const router = express.Router()
+const userModel = new _db.Users() /** new instance of the User model */
 
 router.post('/signup', (req, res) => {
-  var newUser = new authController.UserInfo(req.body.name, req.body.email, req.body.password, req.body.confirmPass) /**
+  let newUser = new authController.UserInfo(req.body.name, req.body.email, req.body.password, req.body.confirmPass) /**
    * create a new user object with user info
    */
-  var response = authController.validateInput(newUser.name, newUser.email, newUser.password, newUser.confirmPass) /**
+  let response = authController.validateInput(newUser.name, newUser.email, newUser.password, newUser.confirmPass) /**
    * validate user input and check for edge-cases
    */
   if (response === 'success') {
@@ -25,12 +26,11 @@ router.post('/signup', (req, res) => {
 })
 
 router.post('/signin', (req, res) => {
-  var userObj = R.omit(['confirmPass'], new authController.UserInfo()) /**
+  let userObj = R.omit(['confirmPass', 'name'], new authController.UserInfo()) /**
    * create new user object instance omitting some properties
    */
   userObj.email = req.body.email
   userObj.password = req.body.password
-  userObj.name = req.body.name
 
   authController.userAuth(_db.Users, userObj, res) /**
    * handels user authentication

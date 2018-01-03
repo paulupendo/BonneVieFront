@@ -1,6 +1,7 @@
-const R = require('ramda')
-var jwt = require('jsonwebtoken')
-var _secret = process.env.SECRET
+import R from 'ramda'
+import jwt from 'jsonwebtoken'
+
+const _SECRET = process.env.SECRET
 
 const isEmptyString = R.pipe(/** function composition with Ramda */
   R.defaultTo(''),
@@ -16,11 +17,11 @@ module.exports = {
     this.confirmPass = confirmPass
   },
   validateInput: function (name, email, password, confirmPassword) { /** validate user input */
-    var message
-    var regx = /^[a-z0-9]+@[a-z0-9]+(?:\.[a-z0-9])/ /**
+    let message
+    let regx = /^[a-z0-9]+@[a-z0-9]+(?:\.[a-z0-9])/ /**
      * email matching regExp
      */
-    var emptyField = R.any(isEmptyString, [name, email, password, confirmPassword]) /**
+    let emptyField = R.any(isEmptyString, [name, email, password, confirmPassword]) /**
      * returns boolean after cheking if input is empty
      */
     if (emptyField) {
@@ -37,12 +38,7 @@ module.exports = {
     return message
   },
   userAuth: function (usersModel, userObj, res) { /** signin handler */
-    var emptyField
-    if (userObj.email) {
-      emptyField = R.any(isEmptyString, [userObj.email, userObj.password])
-    } else if (userObj.name) {
-      emptyField = R.any(isEmptyString, [userObj.name, userObj.password])
-    }
+    let emptyField = R.any(isEmptyString, [userObj.email, userObj.password])
 
     if (emptyField) {
       res.json({ msg: 'Ooops! All input fields are required' })
@@ -54,24 +50,18 @@ module.exports = {
           console.log(err)
           res.json({ msg: 'Ooops! An error occured' })
         } else {
-          var userExists = users.some((user) => {
-            if (userObj.email) {
-              return user.email === R.trim(userObj.email) && user.password === R.trim(userObj.password) /**
+          let userExists = users.some((user) => {
+            return user.email === R.trim(userObj.email) && user.password === R.trim(userObj.password) /**
               * return true if user email and password match
               */
-            } else if (userObj.name) {
-              return user.username === R.trim(userObj.name) && user.password === R.trim(userObj.password) /**
-              * return true if username and password match
-              */
-            }
           })
 
           if (userExists) {
-            var registeredUser = users.find((user) => {
+            let registeredUser = users.find((user) => {
               return user.email === R.trim(userObj.email)
             }) /** get user object from DB */
 
-            var token = this.generateToken(registeredUser._id) /**
+            let token = this.generateToken(registeredUser._id) /**
              * generate authentication token onSignin
              */
 
@@ -107,11 +97,11 @@ module.exports = {
   },
   save: function (usersModel, UserMInstance, userObj, res) {
     usersModel.find((err, users) => { /** move this to own function during refactor */
-      var email = R.trim(userObj.email)
+      let email = R.trim(userObj.email)
       if (err) {
         console.log(err)
       } else {
-        var userExists = users.some((user) => {
+        let userExists = users.some((user) => {
           return user.email === email
         }) /** return true if username found */
         if (userExists) {
@@ -125,14 +115,14 @@ module.exports = {
     })
   },
   generateToken: function (_id) {
-    var _payload = {id: _id} /** embed user_id into token payload */
-    var token = jwt.sign(_payload, _secret, { expiresIn: '3h' }) /**
+    let _payload = {id: _id} /** embed user_id into token payload */
+    let token = jwt.sign(_payload, _SECRET, { expiresIn: '3h' }) /**
      * jwt token with 3hour expiry time
      */
     return token
   },
   verifyToken: function (token) {
-    var tokenDecoded = jwt.verify(token, _secret, (err, decodedToken) => {
+    let tokenDecoded = jwt.verify(token, _SECRET, (err, decodedToken) => {
       if (err) {
         return err
       } else {
